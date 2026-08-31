@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>מנצ'קינלנד — מערכת האתר</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3ead7;color:#24170d}
+header{background:#3d2113;color:#ffe08a;text-align:center;padding:24px;border-bottom:5px solid #d49a2f}
+header h1{margin:0;font-size:38px}nav{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;background:#5a3019;padding:12px}
+button{cursor:pointer;border:0;border-radius:9px;padding:10px 15px;font-weight:bold}nav button{background:#f5cb5c}
+main{max-width:1100px;margin:24px auto;padding:0 15px}.page{display:none}.active{display:block}
+.box{background:white;border:2px solid #d2b170;border-radius:15px;padding:20px;margin:15px 0;box-shadow:0 3px 10px #0001}
+.hero{background:linear-gradient(135deg,#6b361b,#9b5b24);color:white;text-align:center;border-radius:18px;padding:40px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}.tile{background:#fff8e8;border:2px solid #d8bd87;border-radius:12px;padding:16px}
+input,textarea,select{width:100%;padding:10px;margin:5px 0 12px;border:1px solid #b99b6a;border-radius:7px;font-size:15px}textarea{min-height:100px}
+.primary{background:#7a3d1c;color:white}.secondary{background:#e8d39c}.danger{background:#b23b2e;color:white}
+.notice{border-right:6px solid #d49a2f;background:#fff8e8;padding:13px;margin:9px 0;border-radius:8px}
+.calendar{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.day{min-height:80px;background:#fff8e8;border:1px solid #d4bc8c;border-radius:7px;padding:8px}.special{background:#f5dfaa;border-color:#a97824}
+.monthbar{display:flex;justify-content:space-between;align-items:center;gap:10px}.monthbar h2{margin:0}
+.small{font-size:13px;color:#715d43}.hidden{display:none}.event{padding:8px;background:#f7edd8;border-radius:7px;margin:5px 0}
+#messages{max-height:280px;overflow:auto;background:#faf5ea;padding:10px;border-radius:8px}.msg{background:#fff;border-right:4px solid #d49a2f;padding:8px;margin:7px 0;border-radius:7px}
+.cardpreview{width:260px;min-height:350px;margin:20px auto;background:#e7d2a2;border:8px solid #6c3b1c;border-radius:12px;padding:12px;text-align:center}
+.art{height:110px;background:#d5bd88;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:48px;margin:12px 0}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row>*{flex:1;min-width:130px}
+footer{text-align:center;padding:25px;color:#715d43}
+</style>
+</head>
+<body>
+<header><h1>🏰 מנצ'קינלנד 🐉</h1><div>מערכת האתר · גרסה 3.0</div></header>
+<nav>
+<button onclick="page('home')">🏠 בית</button><button onclick="page('news')">📰 חדשות</button>
+<button onclick="page('cal')">📅 לוח מנצ'קינלנדי</button><button onclick="page('jewish')">🎴 מנצ'קין יהודים</button>
+<button onclick="page('chat')">💬 צ'אט</button><button onclick="page('profile')">👤 פרופיל</button><button onclick="page('admin')">🛡️ ניהול</button>
+</nav>
+<main>
+<section id="home" class="page active">
+<div class="hero"><h2>ברוכים הבאים למנצ'קינלנד!</h2><p id="today"></p><div id="dailyNotice"></div></div>
+<div class="grid" style="margin-top:18px"><div class="tile"><h3>📰 חדשות</h3><p>חדשות שאפשר לערוך דרך הניהול.</p></div><div class="tile"><h3>📅 לוח</h3><p>20 חודשים × 20 ימים.</p></div><div class="tile"><h3>🎴 מנצ'קין יהודים</h3><p>מעצב קלפים.</p></div><div class="tile"><h3>🔔 מנהגים וחגים</h3><p>ניתן להוסיף דרך הניהול.</p></div></div>
+</section>
+
+<section id="news" class="page"><h2>📰 חדשות מנצ'קינלנד</h2><div id="newsList"></div></section>
+
+<section id="cal" class="page"><div class="box">
+<div class="monthbar"><button class="secondary" onclick="changeMonth(-1)">⬅️ חודש קודם</button><h2 id="monthTitle"></h2><button class="secondary" onclick="changeMonth(1)">חודש הבא ➡️</button></div>
+<p class="small">20 חודשים בשנה · 20 ימים בחודש · 4 שבועות × 5 ימים.</p><div id="calendar"></div>
+</div></section>
+
+<section id="jewish" class="page"><h2>🎴 מנצ'קין יהודים</h2><div class="box"><h3>מעצב קלף</h3>
+<label>שם</label><input id="cn" value="קלף מנצ'קין חדש"><label>סוג</label><select id="ct"><option>מפלצת</option><option>אוצר</option><option>קללה</option><option>מקצוע</option><option>גזע</option><option>מיוחד</option></select>
+<label>טקסט</label><textarea id="cx">כאן כותבים את הטקסט של הקלף.</textarea><label>איור / סמל</label><input id="ca" value="✡️"><button class="primary" onclick="updateCard()">עדכן קלף</button>
+<div class="cardpreview"><h3 id="pn">קלף מנצ'קין חדש</h3><div class="art" id="pa">✡️</div><b id="pt">מפלצת</b><p id="px">כאן כותבים את הטקסט של הקלף.</p></div>
+</div></section>
+
+<section id="chat" class="page"><h2>💬 צ'אט קבוצתי</h2><div class="box"><div id="messages"></div><input id="chatUser" placeholder="שם משתמש"><input id="chatText" placeholder="הודעה" onkeydown="if(event.key==='Enter')send()"><button class="primary" onclick="send()">שלח</button><p class="small">בגרסה המקומית ההודעות נשמרות בדפדפן. לצ'אט משותף נצטרך שרת.</p></div></section>
+
+<section id="profile" class="page"><h2>👤 אזור אישי</h2><div class="box">
+<div id="loginBox"><h3>🔐 התחברות</h3><p>אבטיפוס מקומי בלבד.</p><input id="loginName" placeholder="שם משתמש"><input id="loginPass" type="password" placeholder="סיסמה"><button class="primary" onclick="login()">התחבר</button></div>
+<div id="profileBox" class="hidden"><h3 id="welcome"></h3><label>דרגה</label><input id="prRank"><label>מקצוע</label><input id="prJob"><label>גזע</label><input id="prRace"><label>נשק</label><input id="prWeapon"><button class="primary" onclick="saveProfile()">שמור</button> <button class="danger" onclick="logout()">התנתק</button></div>
+</div></section>
+
+<section id="admin" class="page"><h2>🛡️ מרכז ניהול מנצ'קינלנד</h2>
+<div class="box" id="adminLogin"><h3>🔐 כניסת מנהל</h3><input id="adminPass" type="password" placeholder="סיסמת מנהל"><button class="primary" onclick="adminLogin()">כניסה</button></div>
+<div id="adminPanel" class="hidden">
+<div class="box"><h3>📰 ניהול חדשות</h3><input id="nt" placeholder="כותרת"><textarea id="nx" placeholder="תוכן החדשה"></textarea><button class="primary" onclick="addNews()">פרסם חדשה</button><div id="adminNews"></div></div>
+<div class="box"><h3>📅 עריכת הלוח</h3><p>כאן תוכל להוסיף חג או מנהג לכל יום. השינויים נשמרים בדפדפן בגרסה הזו.</p>
+<div class="row"><input id="edMonth" type="number" min="1" max="20" value="5" placeholder="חודש"><input id="edDay" type="number" min="1" max="20" value="11" placeholder="יום"></div>
+<input id="edTitle" placeholder="שם האירוע / החג"><textarea id="edDesc" placeholder="תיאור או מנהג"></textarea>
+<button class="primary" onclick="saveEvent()">שמור אירוע בלוח</button><div id="eventsAdmin"></div></div>
+<div class="box"><h3>🔔 הודעות חוזרות</h3><input id="rt" placeholder="לדוגמה: אל תשכחו את המנהג!"><select id="rd"><option value="1">יום ראשון</option><option value="2">יום שני</option><option value="3">יום שלישי</option><option value="4">יום רביעי</option><option value="5">יום חמישי</option></select><button class="primary" onclick="addReminder()">שמור הודעה</button></div>
+<p class="small">⚠️ זו עדיין גרסה מקומית. סיסמת המנהל וההרשאות אינן מתאימות לאתר ציבורי. בגרסה המקוונת נעביר אותן לשרת מאובטח.</p>
+</div></section>
+</main><footer>🏰 מנצ'קינלנד · גרסה 3.0</footer>
+<script>
+const LS='mkl3_';let currentMonth=5,currentDay=11;
+const specialDefaults={'5-9':{title:'🦉 אתנה-חג',desc:''},'5-10':{title:'⚔️ ארס-חג',desc:''}};
+function page(id){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');if(id==='cal')renderCal();if(id==='news')renderNews();if(id==='profile')loadProfile();if(id==='admin'&&localStorage.getItem(LS+'admin')==='1')showAdmin();}
+function dayName(d){return ['יום ראשון','יום שני','יום שלישי','יום רביעי','יום חמישי'][((d-1)%5)];}
+function getEvents(){return JSON.parse(localStorage.getItem(LS+'events')||'{}')}
+function renderCal(){
+ monthTitle.textContent='חודש '+currentMonth;
+ let ev=getEvents(),s='<div class="calendar">';
+ for(let d=1;d<=20;d++){let k=currentMonth+'-'+d,e=ev[k]||specialDefaults[k], cls='day'+(e?' special':'');s+=`<div class="${cls}"><strong>${dayName(d)}</strong>יום ${d}${e?'<div class="event"><b>'+esc(e.title)+'</b>'+(e.desc?'<br><span class="small">'+esc(e.desc)+'</span>':'')+'</div>':''}</div>`}
+ calendar.innerHTML=s+'</div>';
+}
+function changeMonth(n){currentMonth=Math.max(1,Math.min(20,currentMonth+n));renderCal()}
+function updateHome(){today.textContent='היום: '+dayName(currentDay)+' · יום '+currentDay+' בחודש '+currentMonth;let r=JSON.parse(localStorage.getItem(LS+'reminder')||'null');dailyNotice.innerHTML=r&&Number(r.day)===((currentDay-1)%5)+1?'<div class="notice">🔔 '+esc(r.text)+'</div>':''}
+function updateCard(){pn.textContent=cn.value;pt.textContent=ct.value;px.textContent=cx.value;pa.textContent=ca.value}
+function send(){let u=chatUser.value.trim()||'מנצ׳קין',t=chatText.value.trim();if(!t)return;let a=JSON.parse(localStorage.getItem(LS+'chat')||'[]');a.push({u,t});localStorage.setItem(LS+'chat',JSON.stringify(a));chatText.value='';renderChat()}
+function renderChat(){let a=JSON.parse(localStorage.getItem(LS+'chat')||'[]');messages.innerHTML='<div class="msg"><b>מנצ׳קינלנד:</b> ברוכים הבאים לצ׳אט!</div>'+a.map(x=>`<div class="msg"><b>${esc(x.u)}:</b> ${esc(x.t)}</div>`).join('')}
+function login(){let n=loginName.value.trim(),p=loginPass.value;if(!n||!p){alert('יש למלא שם משתמש וסיסמה');return}localStorage.setItem(LS+'user',JSON.stringify({n,p}));loadProfile();alert('התחברת לחשבון המקומי.')}
+function loadProfile(){let u=JSON.parse(localStorage.getItem(LS+'user')||'null');loginBox.classList.toggle('hidden',!!u);profileBox.classList.toggle('hidden',!u);if(u){welcome.textContent='שלום, '+u.n+'!';let x=JSON.parse(localStorage.getItem(LS+'profile')||'{}');prRank.value=x.rank||'';prJob.value=x.job||'';prRace.value=x.race||'';prWeapon.value=x.weapon||''}}
+function saveProfile(){localStorage.setItem(LS+'profile',JSON.stringify({rank:prRank.value,job:prJob.value,race:prRace.value,weapon:prWeapon.value}));alert('נשמר.')}
+function logout(){localStorage.removeItem(LS+'user');loadProfile()}
+function adminLogin(){if(adminPass.value==='MUNCHKIN_ADMIN'){localStorage.setItem(LS+'admin','1');showAdmin()}else alert('סיסמת מנהל שגויה')}
+function showAdmin(){document.getElementById('adminLogin').classList.add('hidden');document.getElementById('adminPanel').classList.remove('hidden');renderAdminNews();renderAdminEvents()}
+function addNews(){let t=nt.value.trim(),x=nx.value.trim();if(!t||!x)return;let a=JSON.parse(localStorage.getItem(LS+'news')||'[]');a.unshift({t,x,date:displayDate()});localStorage.setItem(LS+'news',JSON.stringify(a));nt.value='';nx.value='';renderNews();renderAdminNews()}
+function renderNews(){let base=[{t:'האתר נפתח!',x:'גרסה 3.0 של אתר מנצ׳קינלנד מוכנה.',date:'31 באוגוסט 2026'},{t:'מנצ׳קין יהודים בפיתוח',x:'הרחבת מנצ׳קין יהודים ומעצב הקלפים נמצאים בפיתוח.',date:'31 באוגוסט 2026'}],a=JSON.parse(localStorage.getItem(LS+'news')||'[]');newsList.innerHTML=base.concat(a).map(n=>`<div class="box"><h3>${esc(n.t)}</h3><p>${esc(n.x)}</p><span class="small">${esc(n.date)}</span></div>`).join('')}
+function renderAdminNews(){let a=JSON.parse(localStorage.getItem(LS+'news')||'[]');adminNews.innerHTML=a.length?a.map((n,i)=>`<div class="event"><b>${esc(n.t)}</b> <button class="danger" onclick="deleteNews(${i})">מחק</button></div>`).join(''):'<p class="small">אין חדשות שפורסמו ידנית.</p>'}
+function deleteNews(i){let a=JSON.parse(localStorage.getItem(LS+'news')||'[]');a.splice(i,1);localStorage.setItem(LS+'news',JSON.stringify(a));renderNews();renderAdminNews()}
+function saveEvent(){let m=Number(edMonth.value),d=Number(edDay.value),t=edTitle.value.trim(),x=edDesc.value.trim();if(m<1||m>20||d<1||d>20||!t){alert('יש למלא חודש, יום ושם');return}let a=getEvents();a[m+'-'+d]={title:t,desc:x};localStorage.setItem(LS+'events',JSON.stringify(a));renderCal();renderAdminEvents();alert('האירוע נוסף ללוח.')}
+function renderAdminEvents(){let a=getEvents(),keys=Object.keys(a);eventsAdmin.innerHTML=keys.length?keys.sort((x,y)=>x.localeCompare(y,undefined,{numeric:true})).map(k=>`<div class="event"><b>חודש ${k.split('-')[0]}, יום ${k.split('-')[1]}:</b> ${esc(a[k].title)} <button class="danger" onclick="deleteEvent('${k}')">מחק</button></div>`).join(''):'<p class="small">אין אירועים שהוספת.</p>'}
+function deleteEvent(k){let a=getEvents();delete a[k];localStorage.setItem(LS+'events',JSON.stringify(a));renderCal();renderAdminEvents()}
+function addReminder(){let t=rt.value.trim();if(!t)return;localStorage.setItem(LS+'reminder',JSON.stringify({text:t,day:rd.value}));updateHome();alert('ההודעה נשמרה.')}
+function displayDate(){return 'חודש '+currentMonth+', יום '+currentDay}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+renderCal();renderNews();renderChat();updateHome();loadProfile();if(localStorage.getItem(LS+'admin')==='1')showAdmin();
+</script>
+</body></html>
