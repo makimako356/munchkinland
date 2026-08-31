@@ -71,7 +71,12 @@ footer{text-align:center;padding:25px;color:#715d43}
 <p class="small">⚠️ זו עדיין גרסה מקומית. סיסמת המנהל וההרשאות אינן מתאימות לאתר ציבורי. בגרסה המקוונת נעביר אותן לשרת מאובטח.</p>
 </div></section>
 </main><footer>🏰 מנצ'קינלנד · גרסה 3.0</footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+const SUPABASE_URL = 'https://jsbhunmytehncwrllqdu.supabase.co/rest/v1/';
+const SUPABASE_KEY = 'sb_publishable_zd8lJhNhOw-La0bXO-xnzA_zlYdQAvg';
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 const LS='mkl3_';let currentMonth=5,currentDay=11;
 const specialDefaults={'5-9':{title:'🦉 אתנה-חג',desc:''},'5-10':{title:'⚔️ ארס-חג',desc:''}};
 function page(id){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');if(id==='cal')renderCal();if(id==='news')renderNews();if(id==='profile')loadProfile();if(id==='admin'&&localStorage.getItem(LS+'admin')==='1')showAdmin();}
