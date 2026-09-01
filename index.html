@@ -192,16 +192,8 @@ async function loadProfile(){
     return;
   }
 
-  loadProfile();
-  alert('התנתקת בהצלחה!');
-}
-async function logout(){
-  const {error}=await supabaseClient.auth.signOut();
-
-  if(error){
-    alert('ההתנתקות נכשלה: '+error.message);
-    return;
-  }
+  document.getElementById('adminPanel').classList.add('hidden');
+  document.getElementById('adminLogin').classList.remove('hidden');
 
   await loadProfile();
   alert('התנתקת בהצלחה!');
@@ -270,6 +262,6 @@ function deleteEvent(k){let a=getEvents();delete a[k];localStorage.setItem(LS+'e
 function addReminder(){let t=rt.value.trim();if(!t)return;localStorage.setItem(LS+'reminder',JSON.stringify({text:t,day:rd.value}));updateHome();alert('ההודעה נשמרה.')}
 function displayDate(){return 'חודש '+currentMonth+', יום '+currentDay}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-renderCal();renderNews();renderChat();updateHome();loadProfile();if(localStorage.getItem(LS+'admin')==='1')showAdmin();
+renderCal();renderNews();renderChat();updateHome();loadProfile();
 </script>
 </body></html>
