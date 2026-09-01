@@ -184,39 +184,8 @@ async function login(){
 
   alert('הפרופיל נשמר ב-Supabase! 🏰');
 }
-  async function registerUser
 async function loadProfile(){
   const {data:{user},error}=await supabaseClient.auth.getUser();
-
-  if(error||!user){
-    loginBox.classList.remove('hidden');
-    profileBox.classList.add('hidden');
-    return;
-  }
-
-  loginBox.classList.add('hidden');
-  profileBox.classList.remove('hidden');
-
-  welcome.textContent='שלום, '+(user.email||'משתמש')+'!';
-
-  const {data:profile,error:profileError}=await supabaseClient
-    .from('profiles')
-    .select('rank,job,race,weapon')
-    .eq('user_id',user.id)
-    .maybeSingle();
-
-  if(profileError){
-    console.error(profileError);
-    return;
-  }
-
-  if(profile){
-    prRank.value=profile.rank||'';
-    prJob.value=profile.job||'';
-    prRace.value=profile.race||'';
-    prWeapon.value=profile.weapon||'';
-  }
-}
  async function logout(){
   const {error}=await supabaseClient.auth.signOut();
 
