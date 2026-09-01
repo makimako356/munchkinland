@@ -131,6 +131,44 @@ function updateCard(){pn.textContent=cn.value;pt.textContent=ct.value;px.textCon
 function send(){let u=chatUser.value.trim()||'מנצ׳קין',t=chatText.value.trim();if(!t)return;let a=JSON.parse(localStorage.getItem(LS+'chat')||'[]');a.push({u,t});localStorage.setItem(LS+'chat',JSON.stringify(a));chatText.value='';renderChat()}
 function renderChat(){let a=JSON.parse(localStorage.getItem(LS+'chat')||'[]');messages.innerHTML='<div class="msg"><b>מנצ׳קינלנד:</b> ברוכים הבאים לצ׳אט!</div>'+a.map(x=>`<div class="msg"><b>${esc(x.u)}:</b> ${esc(x.t)}</div>`).join('')}
 async function login(){
+  async function registerUser(){
+  const email = registerEmail.value.trim();
+  const password = registerPass.value;
+
+  if(!email || !password){
+    alert('יש למלא מייל וסיסמה');
+    return;
+  }
+
+  const {data,error} = await supabaseClient.auth.signUp({
+    email: email,
+    password: password
+  });
+
+  if(error){
+    alert('יצירת החשבון נכשלה: '+error.message);
+    return;
+  }
+
+  if(!data.user){
+    alert('החשבון לא נוצר.');
+    return;
+  }
+
+  const {error:profileError} = await supabaseClient
+    .from('profiles')
+    .insert({
+      user_id: data.user.id
+    });
+
+  if(profileError){
+    console.error(profileError);
+    alert('החשבון נוצר, אבל הפרופיל לא נוצר: '+profileError.message);
+    return;
+  }
+
+  alert('החשבון נוצר בהצלחה! 🎉\nהחשבון ממתין לאישור מנהל.');
+}
   let n=loginName.value.trim();
   let p=loginPass.value;
 
