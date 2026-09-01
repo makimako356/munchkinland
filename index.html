@@ -311,8 +311,7 @@ function showAdmin(){
   renderAdminNews();
   renderAdminEvents();
   loadRegistrationRequests();
-}
-  async function loadRegistrationRequests(){
+async function loadRegistrationRequests(){
   const {data,error} = await supabaseClient
     .from('profiles')
     .select('id,user_id,username,created_at,approved,role')
@@ -341,6 +340,9 @@ function showAdmin(){
       <br>
       <button class="primary" onclick="approveUser('${profile.id}')">
         ✅ אישור
+      </button>
+      <button class="danger" onclick="rejectUser('${profile.id}')">
+        ❌ דחייה
       </button>
     </div>
   `).join('');
