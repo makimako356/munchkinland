@@ -98,7 +98,7 @@ async function login(){
   let p=loginPass.value;
 
   if(!n||!p){
-    alert('יש למלא שם משתמש וסיסמה');
+    alert('יש למלא מייל וסיסמה');
     return;
   }
 
@@ -114,6 +114,32 @@ async function login(){
 
   alert('התחברת בהצלחה!');
   loadProfile();
+}
+ async function saveProfile(){
+  const {data:{user},error:userError}=await supabaseClient.auth.getUser();
+
+  if(userError||!user){
+    alert('צריך להתחבר קודם.');
+    return;
+  }
+
+  const {error}=await supabaseClient
+    .from('profiles')
+    .update({
+      rank:prRank.value,
+      job:prJob.value,
+      race:prRace.value,
+      weapon:prWeapon.value
+    })
+    .eq('user_id',user.id);
+
+  if(error){
+    console.error(error);
+    alert('שמירת הפרופיל נכשלה: '+error.message);
+    return;
+  }
+
+  alert('הפרופיל נשמר ב-Supabase! 🏰');
 }
 async function loadProfile(){
   const {data:{user},error}=await supabaseClient.auth.getUser();
