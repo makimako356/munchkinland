@@ -135,22 +135,21 @@ function changeMonth(n){currentMonth=Math.max(1,Math.min(20,currentMonth+n));ren
 function updateHome(){today.textContent='היום: '+dayName(currentDay)+' · יום '+currentDay+' בחודש '+currentMonth;let r=JSON.parse(localStorage.getItem(LS+'reminder')||'null');dailyNotice.innerHTML=r&&Number(r.day)===((currentDay-1)%5)+1?'<div class="notice">🔔 '+esc(r.text)+'</div>':''}
 function updateCard(){pn.textContent=cn.value;pt.textContent=ct.value;px.textContent=cx.value;pa.textContent=ca.value}
 async function send(){
-  const {data:{user},error:userError}=await supabaseClient.auth.getUser();
+  const user = await supabaseClient.auth.getUser();
 
-  if(userError || !user){
-    alert('צריך להתחבר קודם.');
+  if(!user.data.user){
+    alert('צריך להתחבר כדי לשלוח הודעה.');
     return;
   }
 
-  const {data:profile,error:profileError}=await supabaseClient
+  const {data: profile,error: profileError} = await supabaseClient
     .from('profiles')
-    .select('approved')
-    .eq('user_id',user.id)
+    .select('username,approved')
+    .eq('user_id',user.data.user.id)
     .maybeSingle();
 
   if(profileError){
-    console.error(profileError);
-    alert('לא ניתן לבדוק את אישור החשבון.');
+    alert('לא ניתן לבדוק את המשתמש: '+profileError.message);
     return;
   }
 
@@ -159,31 +158,48 @@ async function send(){
     return;
   }
 
-  const text=chatText.value.trim();
+  const text = chatText.value.trim();
 
-  if(!text){
-    return;
-  }
+  if(!text) return;
 
-  const username=user.email || 'מנצ׳קין';
-
-  const {error}=await supabaseClient
+  const {error} = await supabaseClient
     .from('messages')
     .insert({
-      username:username,
-      messages:text
+      username: profile.username || user.data.user.email,
+      messages: text,
+      user_id: user.data.user.id
     });
 
   if(error){
-    console.error(error);
     alert('שליחת ההודעה נכשלה: '+error.message);
     return;
   }
 
-  chatText.value='';
+  chatText.value = '';
   await renderChat();
 }
-function renderChat(){let a=JSON.parse(localStorage.getItem(LS+'chat')||'[]');messages.innerHTML='<div class="msg"><b>מנצ׳קינלנד:</b> ברוכים הבאים לצ׳אט!</div>'+a.map(x=>`<div class="msg"><b>${esc(x.u)}:</b> ${esc(x.t)}</div>`).join('')}
+async function renderChat(){
+  const {data,error} = await supabaseClient
+    .from('messages')
+    .select('username,messages,created_at')
+    .order('created_at',{ascending:true});
+
+  if(error){
+    console.error(error);
+    messages.innerHTML =
+      '<div class="msg">לא ניתן לטעון את ההודעות.</div>';
+    return;
+  }
+
+  messages.innerHTML =
+    '<div class="msg"><b>מנצ׳קינלנד:</b> ברוכים הבאים לצ׳אט!</div>' +
+    data.map(x =>
+      `<div class="msg">
+        <b>${esc(x.username || 'מנצ׳קין')}:</b>
+        ${esc(x.messages)}
+      </div>`
+    ).join('');
+}
 async function registerUser(){
   const email = registerEmail.value.trim();
   const password = registerPass.value;
