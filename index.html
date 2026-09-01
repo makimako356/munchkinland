@@ -136,8 +136,7 @@ function updateHome(){today.textContent='היום: '+dayName(currentDay)+' · י
 function updateCard(){pn.textContent=cn.value;pt.textContent=ct.value;px.textContent=cx.value;pa.textContent=ca.value}
 function send(){let u=chatUser.value.trim()||'מנצ׳קין',t=chatText.value.trim();if(!t)return;let a=JSON.parse(localStorage.getItem(LS+'chat')||'[]');a.push({u,t});localStorage.setItem(LS+'chat',JSON.stringify(a));chatText.value='';renderChat()}
 function renderChat(){let a=JSON.parse(localStorage.getItem(LS+'chat')||'[]');messages.innerHTML='<div class="msg"><b>מנצ׳קינלנד:</b> ברוכים הבאים לצ׳אט!</div>'+a.map(x=>`<div class="msg"><b>${esc(x.u)}:</b> ${esc(x.t)}</div>`).join('')}
-async function login(){
-  async function registerUser(){
+async function registerUser(){
   const email = registerEmail.value.trim();
   const password = registerPass.value;
 
@@ -175,6 +174,8 @@ async function login(){
 
   alert('החשבון נוצר בהצלחה! 🎉\nהחשבון ממתין לאישור מנהל.');
 }
+
+async function login(){
   let n=loginName.value.trim();
   let p=loginPass.value;
 
@@ -195,6 +196,7 @@ async function login(){
 
   alert('התחברת בהצלחה!');
   loadProfile();
+}
 }async function saveProfile(){
   const {data:{user},error:userError}=await supabaseClient.auth.getUser();
 
@@ -311,6 +313,7 @@ function showAdmin(){
   renderAdminNews();
   renderAdminEvents();
   loadRegistrationRequests();
+}
 async function loadRegistrationRequests(){
   const {data,error} = await supabaseClient
     .from('profiles')
