@@ -184,8 +184,7 @@ async function login(){
 
   alert('הפרופיל נשמר ב-Supabase! 🏰');
 }
-async function loadProfile(){
-  const {data:{user},error}=await supabaseClient.auth.getUser();
+
  async function logout(){
   const {error}=await supabaseClient.auth.signOut();
 
@@ -196,7 +195,9 @@ async function loadProfile(){
 
   document.getElementById('adminPanel').classList.add('hidden');
   document.getElementById('adminLogin').classList.remove('hidden');
-
+ }
+async function loadProfile(){
+  const {data:{user},error}=await supabaseClient.auth.getUser();
   await loadProfile();
   alert('התנתקת בהצלחה!');
 }
