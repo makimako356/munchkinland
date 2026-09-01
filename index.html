@@ -134,7 +134,54 @@ function renderCal(){
 function changeMonth(n){currentMonth=Math.max(1,Math.min(20,currentMonth+n));renderCal()}
 function updateHome(){today.textContent='היום: '+dayName(currentDay)+' · יום '+currentDay+' בחודש '+currentMonth;let r=JSON.parse(localStorage.getItem(LS+'reminder')||'null');dailyNotice.innerHTML=r&&Number(r.day)===((currentDay-1)%5)+1?'<div class="notice">🔔 '+esc(r.text)+'</div>':''}
 function updateCard(){pn.textContent=cn.value;pt.textContent=ct.value;px.textContent=cx.value;pa.textContent=ca.value}
-function send(){let u=chatUser.value.trim()||'מנצ׳קין',t=chatText.value.trim();if(!t)return;let a=JSON.parse(localStorage.getItem(LS+'chat')||'[]');a.push({u,t});localStorage.setItem(LS+'chat',JSON.stringify(a));chatText.value='';renderChat()}
+async function send(){
+  const text = chatText.value.trim();
+
+  if(!text) return;
+
+  const {data:{user},error:userError} =
+    await supabaseClient.auth.getUser();
+
+  if(userError || !user){
+    alert('צריך להתחבר כדי לשלוח הודעה.');
+    return;
+  }
+
+  const {data:profile,error:profileError} =
+    await supabaseClient
+      .from('profiles')
+      .select('username,approved')
+      .eq('user_id',user.id)
+      .maybeSingle();
+
+  if(profileError){
+    console.error(profileError);
+    alert('לא ניתן לבדוק את החשבון.');
+    return;
+  }
+
+  if(!profile || profile.approved !== true){
+    alert('רק משתמשים שאושרו יכולים לשלוח הודעות. 🛡️');
+    return;
+  }
+
+  const {error} = await supabaseClient
+    .from('messages')
+    .insert({
+      user_id: user.id,
+      username: profile.username || user.email,
+      message: text
+    });
+
+  if(error){
+    console.error(error);
+    alert('שליחת ההודעה נכשלה: '+error.message);
+    return;
+  }
+
+  chatText.value='';
+  renderChat();
+}
 function renderChat(){let a=JSON.parse(localStorage.getItem(LS+'chat')||'[]');messages.innerHTML='<div class="msg"><b>מנצ׳קינלנד:</b> ברוכים הבאים לצ׳אט!</div>'+a.map(x=>`<div class="msg"><b>${esc(x.u)}:</b> ${esc(x.t)}</div>`).join('')}
 async function registerUser(){
   const email = registerEmail.value.trim();
