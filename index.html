@@ -78,7 +78,6 @@ const SUPABASE_KEY = 'sb_publishable_zd8lJhNhOw-La0bXO-xnzA_zlYdQAvg';
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
  
 const LS='mkl3_';let currentMonth=5,currentDay=11;
-const LS='mkl3_';let currentMonth=5,currentDay=11;
 const specialDefaults={'5-9':{title:'🦉 אתנה-חג',desc:''},'5-10':{title:'⚔️ ארס-חג',desc:''}};
 function page(id){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');if(id==='cal')renderCal();if(id==='news')renderNews();if(id==='profile')loadProfile();if(id==='admin'&&localStorage.getItem(LS+'admin')==='1')showAdmin();}
 function dayName(d){return ['יום ראשון','יום שני','יום שלישי','יום רביעי','יום חמישי'][((d-1)%5)];}
