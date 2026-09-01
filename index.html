@@ -114,8 +114,7 @@ async function login(){
 
   alert('התחברת בהצלחה!');
   loadProfile();
-}
- async function saveProfile(){
+}async function saveProfile(){
   const {data:{user},error:userError}=await supabaseClient.auth.getUser();
 
   if(userError||!user){
@@ -123,7 +122,7 @@ async function login(){
     return;
   }
 
-  const {error}=await supabaseClient
+  const {data,error}=await supabaseClient
     .from('profiles')
     .update({
       rank:prRank.value,
@@ -131,11 +130,18 @@ async function login(){
       race:prRace.value,
       weapon:prWeapon.value
     })
-    .eq('user_id',user.id);
+    .eq('user_id',user.id)
+    .select();
 
   if(error){
     console.error(error);
     alert('שמירת הפרופיל נכשלה: '+error.message);
+    return;
+  }
+
+  if(!data || data.length===0){
+    alert('לא עודכנה אף שורה ב-Supabase. צריך לבדוק את ה-Policy של UPDATE.');
+    console.log('User ID:',user.id);
     return;
   }
 
