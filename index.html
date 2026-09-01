@@ -248,11 +248,37 @@ async function logout(){
 }
 
 async function loadProfile(){
-  const {data:{user},error}=await supabaseClient.auth.getUser();
+  const {data:{user},error} = await supabaseClient.auth.getUser();
 
-  if(error||!user){
+  if(error || !user){
     loginBox.classList.remove('hidden');
     profileBox.classList.add('hidden');
+    return;
+  }
+
+  const {data:profile,error:profileError} = await supabaseClient
+    .from('profiles')
+    .select('rank,job,race,weapon,approved,role')
+    .eq('user_id',user.id)
+    .maybeSingle();
+
+  if(profileError){
+    console.error(profileError);
+    alert('לא ניתן לטעון את הפרופיל: '+profileError.message);
+    return;
+  }
+
+  if(!profile){
+    loginBox.classList.remove('hidden');
+    profileBox.classList.add('hidden');
+    alert('לא נמצא פרופיל עבור החשבון הזה.');
+    return;
+  }
+
+  if(profile.approved !== true){
+    loginBox.classList.remove('hidden');
+    profileBox.classList.add('hidden');
+    alert('החשבון שלך ממתין לאישור מנהל. 🕐');
     return;
   }
 
@@ -261,23 +287,11 @@ async function loadProfile(){
 
   welcome.textContent='שלום, '+(user.email||'משתמש')+'!';
 
-  const {data:profile,error:profileError}=await supabaseClient
-    .from('profiles')
-    .select('rank,job,race,weapon')
-    .eq('user_id',user.id)
-    .maybeSingle();
-
-  if(profileError){
-    console.error(profileError);
-    return;
-  }
-
-  if(profile){
-    prRank.value=profile.rank||'';
-    prJob.value=profile.job||'';
-    prRace.value=profile.race||'';
-    prWeapon.value=profile.weapon||'';
-  }
+  prRank.value=profile.rank||'';
+  prJob.value=profile.job||'';
+  prRace.value=profile.race||'';
+  prWeapon.value=profile.weapon||'';
+}
 }
 async function adminLogin(){
   const {data:{user},error:userError}=await supabaseClient.auth.getUser();
