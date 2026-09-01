@@ -148,6 +148,17 @@ async function loadProfile(){
   }
 }
 function saveProfile(){localStorage.setItem(LS+'profile',JSON.stringify({rank:prRank.value,job:prJob.value,race:prRace.value,weapon:prWeapon.value}));alert('נשמר.')}
+ async function logout(){
+  const {error}=await supabaseClient.auth.signOut();
+
+  if(error){
+    alert('ההתנתקות נכשלה: '+error.message);
+    return;
+  }
+
+  loadProfile();
+  alert('התנתקת בהצלחה!');
+}
 function logout(){localStorage.removeItem(LS+'user');loadProfile()}
 function adminLogin(){if(adminPass.value==='MUNCHKIN_ADMIN'){localStorage.setItem(LS+'admin','1');showAdmin()}else alert('סיסמת מנהל שגויה')}
 function showAdmin(){document.getElementById('adminLogin').classList.add('hidden');document.getElementById('adminPanel').classList.remove('hidden');renderAdminNews();renderAdminEvents()}
