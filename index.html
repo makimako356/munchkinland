@@ -60,7 +60,12 @@ footer{text-align:center;padding:25px;color:#715d43}
 </div></section>
 
 <section id="admin" class="page"><h2>🛡️ מרכז ניהול מנצ'קינלנד</h2>
-<div class="box" id="adminLogin"><h3>🔐 כניסת מנהל</h3><input id="adminPass" type="password" placeholder="סיסמת מנהל"><button class="primary" onclick="adminLogin()">כניסה</button></div>
+<div class="box" id="adminLogin">
+  <h3>🔐 כניסה למרכז הניהול</h3>
+  <p>המערכת תבדוק את הרשאות המנהל דרך חשבון Supabase שלך.</p>
+  <button class="primary" onclick="adminLogin()">כניסה למרכז הניהול</button>
+</div>
+
 <div id="adminPanel" class="hidden">
 <div class="box"><h3>📰 ניהול חדשות</h3><input id="nt" placeholder="כותרת"><textarea id="nx" placeholder="תוכן החדשה"></textarea><button class="primary" onclick="addNews()">פרסם חדשה</button><div id="adminNews"></div></div>
 <div class="box"><h3>📅 עריכת הלוח</h3><p>כאן תוכל להוסיף חג או מנהג לכל יום. השינויים נשמרים בדפדפן בגרסה הזו.</p>
