@@ -198,6 +198,8 @@ async function login(){
  }
 async function loadProfile(){
   const {data:{user},error}=await supabaseClient.auth.getUser();
+} 
+  {
   await loadProfile();
   alert('התנתקת בהצלחה!');
 }
