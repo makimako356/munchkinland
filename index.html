@@ -224,33 +224,7 @@ async function adminLogin(){
   }
 
   showAdmin();
-}async function adminLogin(){
-  const {data:{user},error:userError}=await supabaseClient.auth.getUser();
 
-  if(userError||!user){
-    alert('צריך להתחבר לחשבון קודם.');
-    return;
-  }
-
-  const {data:profile,error:profileError}=await supabaseClient
-    .from('profiles')
-    .select('role,approved')
-    .eq('user_id',user.id)
-    .maybeSingle();
-
-  if(profileError){
-    console.error(profileError);
-    alert('לא ניתן לבדוק הרשאות מנהל: '+profileError.message);
-    return;
-  }
-
-  if(!profile || profile.role!=='admin' || profile.approved!==true){
-    alert('אין לך הרשאות מנהל.');
-    return;
-  }
-
-  showAdmin();
-}
 function showAdmin(){document.getElementById('adminLogin').classList.add('hidden');document.getElementById('adminPanel').classList.remove('hidden');renderAdminNews();renderAdminEvents()}
 function addNews(){let t=nt.value.trim(),x=nx.value.trim();if(!t||!x)return;let a=JSON.parse(localStorage.getItem(LS+'news')||'[]');a.unshift({t,x,date:displayDate()});localStorage.setItem(LS+'news',JSON.stringify(a));nt.value='';nx.value='';renderNews();renderAdminNews()}
 function renderNews(){let base=[{t:'האתר נפתח!',x:'גרסה 3.0 של אתר מנצ׳קינלנד מוכנה.',date:'31 באוגוסט 2026'},{t:'מנצ׳קין יהודים בפיתוח',x:'הרחבת מנצ׳קין יהודים ומעצב הקלפים נמצאים בפיתוח.',date:'31 באוגוסט 2026'}],a=JSON.parse(localStorage.getItem(LS+'news')||'[]');newsList.innerHTML=base.concat(a).map(n=>`<div class="box"><h3>${esc(n.t)}</h3><p>${esc(n.x)}</p><span class="small">${esc(n.date)}</span></div>`).join('')}
