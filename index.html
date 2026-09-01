@@ -197,7 +197,8 @@ async function login(){
   alert('התחברת בהצלחה!');
   loadProfile();
 }
-}async function saveProfile(){
+  
+async function saveProfile(){
   const {data:{user},error:userError}=await supabaseClient.auth.getUser();
 
   if(userError||!user){
