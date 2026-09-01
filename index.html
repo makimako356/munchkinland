@@ -292,7 +292,7 @@ async function loadProfile(){
   prRace.value=profile.race||'';
   prWeapon.value=profile.weapon||'';
 }
-}
+
 async function adminLogin(){
   const {data:{user},error:userError}=await supabaseClient.auth.getUser();
 
