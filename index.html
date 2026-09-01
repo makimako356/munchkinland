@@ -53,11 +53,43 @@ footer{text-align:center;padding:25px;color:#715d43}
 </div></section>
 
 <section id="chat" class="page"><h2>💬 צ'אט קבוצתי</h2><div class="box"><div id="messages"></div><input id="chatUser" placeholder="שם משתמש"><input id="chatText" placeholder="הודעה" onkeydown="if(event.key==='Enter')send()"><button class="primary" onclick="send()">שלח</button><p class="small">בגרסה המקומית ההודעות נשמרות בדפדפן. לצ'אט משותף נצטרך שרת.</p></div></section>
-
 <section id="profile" class="page"><h2>👤 אזור אישי</h2><div class="box">
-<div id="loginBox"><h3>🔐 התחברות</h3><p>אבטיפוס מקומי בלבד.</p><input id="loginName" placeholder="שם משתמש"><input id="loginPass" type="password" placeholder="סיסמה"><button class="primary" onclick="login()">התחבר</button></div>
-<div id="profileBox" class="hidden"><h3 id="welcome"></h3><label>דרגה</label><input id="prRank"><label>מקצוע</label><input id="prJob"><label>גזע</label><input id="prRace"><label>נשק</label><input id="prWeapon"><button class="primary" onclick="saveProfile()">שמור</button> <button class="danger" onclick="logout()">התנתק</button></div>
-</div></section>
+
+<div id="loginBox">
+  <h3>🔐 התחברות</h3>
+  <p>התחבר לחשבון שלך.</p>
+  <input id="loginName" placeholder="מייל">
+  <input id="loginPass" type="password" placeholder="סיסמה">
+  <button class="primary" onclick="login()">התחבר</button>
+
+  <hr>
+
+  <h3>📝 יצירת חשבון</h3>
+  <input id="registerEmail" placeholder="מייל">
+  <input id="registerPass" type="password" placeholder="סיסמה">
+  <button class="primary" onclick="registerUser()">צור חשבון</button>
+</div>
+
+<div id="profileBox" class="hidden">
+  <h3 id="welcome"></h3>
+
+  <label>דרגה</label>
+  <input id="prRank">
+
+  <label>מקצוע</label>
+  <input id="prJob">
+
+  <label>גזע</label>
+  <input id="prRace">
+
+  <label>נשק</label>
+  <input id="prWeapon">
+
+  <button class="primary" onclick="saveProfile()">שמור</button>
+  <button class="danger" onclick="logout()">התנתק</button>
+</div>
+
+</div></section></div></section>
 
 <section id="admin" class="page"><h2>🛡️ מרכז ניהול מנצ'קינלנד</h2>
 <div class="box" id="adminLogin">
@@ -152,6 +184,7 @@ async function login(){
 
   alert('הפרופיל נשמר ב-Supabase! 🏰');
 }
+  async function registerUser
 async function loadProfile(){
   const {data:{user},error}=await supabaseClient.auth.getUser();
 
