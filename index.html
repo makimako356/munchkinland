@@ -179,7 +179,6 @@ async function loadProfile(){
     prWeapon.value=profile.weapon||'';
   }
 }
-function saveProfile(){localStorage.setItem(LS+'profile',JSON.stringify({rank:prRank.value,job:prJob.value,race:prRace.value,weapon:prWeapon.value}));alert('נשמר.')}
  async function logout(){
   const {error}=await supabaseClient.auth.signOut();
 
