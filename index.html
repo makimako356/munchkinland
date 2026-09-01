@@ -159,7 +159,17 @@ function saveProfile(){localStorage.setItem(LS+'profile',JSON.stringify({rank:pr
   loadProfile();
   alert('התנתקת בהצלחה!');
 }
-function logout(){localStorage.removeItem(LS+'user');loadProfile()}
+async function logout(){
+  const {error}=await supabaseClient.auth.signOut();
+
+  if(error){
+    alert('ההתנתקות נכשלה: '+error.message);
+    return;
+  }
+
+  await loadProfile();
+  alert('התנתקת בהצלחה!');
+}
 function adminLogin(){if(adminPass.value==='MUNCHKIN_ADMIN'){localStorage.setItem(LS+'admin','1');showAdmin()}else alert('סיסמת מנהל שגויה')}
 function showAdmin(){document.getElementById('adminLogin').classList.add('hidden');document.getElementById('adminPanel').classList.remove('hidden');renderAdminNews();renderAdminEvents()}
 function addNews(){let t=nt.value.trim(),x=nx.value.trim();if(!t||!x)return;let a=JSON.parse(localStorage.getItem(LS+'news')||'[]');a.unshift({t,x,date:displayDate()});localStorage.setItem(LS+'news',JSON.stringify(a));nt.value='';nx.value='';renderNews();renderAdminNews()}
