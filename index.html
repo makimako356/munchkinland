@@ -93,7 +93,28 @@ function updateHome(){today.textContent='היום: '+dayName(currentDay)+' · י
 function updateCard(){pn.textContent=cn.value;pt.textContent=ct.value;px.textContent=cx.value;pa.textContent=ca.value}
 function send(){let u=chatUser.value.trim()||'מנצ׳קין',t=chatText.value.trim();if(!t)return;let a=JSON.parse(localStorage.getItem(LS+'chat')||'[]');a.push({u,t});localStorage.setItem(LS+'chat',JSON.stringify(a));chatText.value='';renderChat()}
 function renderChat(){let a=JSON.parse(localStorage.getItem(LS+'chat')||'[]');messages.innerHTML='<div class="msg"><b>מנצ׳קינלנד:</b> ברוכים הבאים לצ׳אט!</div>'+a.map(x=>`<div class="msg"><b>${esc(x.u)}:</b> ${esc(x.t)}</div>`).join('')}
-function login(){let n=loginName.value.trim(),p=loginPass.value;if(!n||!p){alert('יש למלא שם משתמש וסיסמה');return}localStorage.setItem(LS+'user',JSON.stringify({n,p}));loadProfile();alert('התחברת לחשבון המקומי.')}
+async function login(){
+  let n=loginName.value.trim();
+  let p=loginPass.value;
+
+  if(!n||!p){
+    alert('יש למלא שם משתמש וסיסמה');
+    return;
+  }
+
+  const {data,error}=await supabaseClient.auth.signInWithPassword({
+    email:n,
+    password:p
+  });
+
+  if(error){
+    alert('ההתחברות נכשלה: '+error.message);
+    return;
+  }
+
+  alert('התחברת בהצלחה!');
+  loadProfile();
+}
 function loadProfile(){let u=JSON.parse(localStorage.getItem(LS+'user')||'null');loginBox.classList.toggle('hidden',!!u);profileBox.classList.toggle('hidden',!u);if(u){welcome.textContent='שלום, '+u.n+'!';let x=JSON.parse(localStorage.getItem(LS+'profile')||'{}');prRank.value=x.rank||'';prJob.value=x.job||'';prRace.value=x.race||'';prWeapon.value=x.weapon||''}}
 function saveProfile(){localStorage.setItem(LS+'profile',JSON.stringify({rank:prRank.value,job:prJob.value,race:prRace.value,weapon:prWeapon.value}));alert('נשמר.')}
 function logout(){localStorage.removeItem(LS+'user');loadProfile()}
