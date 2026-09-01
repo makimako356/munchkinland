@@ -115,7 +115,38 @@ async function login(){
   alert('התחברת בהצלחה!');
   loadProfile();
 }
-function loadProfile(){let u=JSON.parse(localStorage.getItem(LS+'user')||'null');loginBox.classList.toggle('hidden',!!u);profileBox.classList.toggle('hidden',!u);if(u){welcome.textContent='שלום, '+u.n+'!';let x=JSON.parse(localStorage.getItem(LS+'profile')||'{}');prRank.value=x.rank||'';prJob.value=x.job||'';prRace.value=x.race||'';prWeapon.value=x.weapon||''}}
+async function loadProfile(){
+  const {data:{user},error}=await supabaseClient.auth.getUser();
+
+  if(error||!user){
+    loginBox.classList.remove('hidden');
+    profileBox.classList.add('hidden');
+    return;
+  }
+
+  loginBox.classList.add('hidden');
+  profileBox.classList.remove('hidden');
+
+  welcome.textContent='שלום, '+(user.email||'משתמש')+'!';
+
+  const {data:profile,error:profileError}=await supabaseClient
+    .from('profiles')
+    .select('rank,job,race,weapon')
+    .eq('user_id',user.id)
+    .maybeSingle();
+
+  if(profileError){
+    console.error(profileError);
+    return;
+  }
+
+  if(profile){
+    prRank.value=profile.rank||'';
+    prJob.value=profile.job||'';
+    prRace.value=profile.race||'';
+    prWeapon.value=profile.weapon||'';
+  }
+}
 function saveProfile(){localStorage.setItem(LS+'profile',JSON.stringify({rank:prRank.value,job:prJob.value,race:prRace.value,weapon:prWeapon.value}));alert('נשמר.')}
 function logout(){localStorage.removeItem(LS+'user');loadProfile()}
 function adminLogin(){if(adminPass.value==='MUNCHKIN_ADMIN'){localStorage.setItem(LS+'admin','1');showAdmin()}else alert('סיסמת מנהל שגויה')}
