@@ -89,7 +89,7 @@ footer{text-align:center;padding:25px;color:#715d43}
   <button class="danger" onclick="logout()">התנתק</button>
 </div>
 
-</div></section></div></section>
+</div></section>
 
 <section id="admin" class="page"><h2>🛡️ מרכז ניהול מנצ'קינלנד</h2>
 <div class="box" id="adminLogin">
@@ -185,7 +185,7 @@ async function login(){
   alert('הפרופיל נשמר ב-Supabase! 🏰');
 }
 
- async function logout(){
+async function logout(){
   const {error}=await supabaseClient.auth.signOut();
 
   if(error){
@@ -195,13 +195,42 @@ async function login(){
 
   document.getElementById('adminPanel').classList.add('hidden');
   document.getElementById('adminLogin').classList.remove('hidden');
- }
-async function loadProfile(){
-  const {data:{user},error}=await supabaseClient.auth.getUser();
-} 
-  {
+
   await loadProfile();
   alert('התנתקת בהצלחה!');
+}
+
+async function loadProfile(){
+  const {data:{user},error}=await supabaseClient.auth.getUser();
+
+  if(error||!user){
+    loginBox.classList.remove('hidden');
+    profileBox.classList.add('hidden');
+    return;
+  }
+
+  loginBox.classList.add('hidden');
+  profileBox.classList.remove('hidden');
+
+  welcome.textContent='שלום, '+(user.email||'משתמש')+'!';
+
+  const {data:profile,error:profileError}=await supabaseClient
+    .from('profiles')
+    .select('rank,job,race,weapon')
+    .eq('user_id',user.id)
+    .maybeSingle();
+
+  if(profileError){
+    console.error(profileError);
+    return;
+  }
+
+  if(profile){
+    prRank.value=profile.rank||'';
+    prJob.value=profile.job||'';
+    prRace.value=profile.race||'';
+    prWeapon.value=profile.weapon||'';
+  }
 }
 async function adminLogin(){
   const {data:{user},error:userError}=await supabaseClient.auth.getUser();
@@ -229,6 +258,8 @@ async function adminLogin(){
   }
 
   showAdmin();
+}
+
 
 function showAdmin(){document.getElementById('adminLogin').classList.add('hidden');document.getElementById('adminPanel').classList.remove('hidden');renderAdminNews();renderAdminEvents()}
 function addNews(){let t=nt.value.trim(),x=nx.value.trim();if(!t||!x)return;let a=JSON.parse(localStorage.getItem(LS+'news')||'[]');a.unshift({t,x,date:displayDate()});localStorage.setItem(LS+'news',JSON.stringify(a));nt.value='';nx.value='';renderNews();renderAdminNews()}
