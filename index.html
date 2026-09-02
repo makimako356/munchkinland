@@ -320,6 +320,8 @@ function showCardCreator(){
 }
 function hideCardCreator(){
   document.getElementById('cardCreator').classList.add('hidden');
+}
+
 async function getSavedCards(){
   const { data, error } = await supabaseClient
     .from('cards')
@@ -333,6 +335,7 @@ async function getSavedCards(){
 
   return data || [];
 }
+
 async function saveCard(){
 
   const name=cn.value.trim();
@@ -354,17 +357,18 @@ async function saveCard(){
       art:art
     });
 
-if(error){
-  console.error('שגיאה בשמירת קלף:', error);
-  alert('שגיאה: '+error.message);
-  return;
-}
+  if(error){
+    console.error('שגיאה בשמירת קלף:', error);
+    alert('שגיאה: '+error.message);
+    return;
+  }
 
   alert('הקלף נשמר בהצלחה ב־Supabase! 🃏');
 
   hideCardCreator();
-  renderSavedCards();
+  await renderSavedCards();
 }
+
 async function renderSavedCards(){
 
   const cards=await getSavedCards();
@@ -398,44 +402,24 @@ async function renderSavedCards(){
   `).join('');
 }
 
-  savedCards.innerHTML=cards.map(card=>`
-    <div class="savedCard">
-
-      <h3>${esc(card.name)}</h3>
-
-      <div class="art">
-        ${esc(card.art || '🎴')}
-      </div>
-
-      <b>${esc(card.type)}</b>
-
-      <p>${esc(card.text)}</p>
-
-      <div class="cardActions">
-        <button class="danger" onclick="deleteSavedCard(${card.id})">
-          🗑️ מחק
-        </button>
-      </div>
-
-    </div>
-  `).join('');
-}
-  function deleteSavedCard(id){
+async function deleteSavedCard(id){
 
   const ok=confirm('האם אתה בטוח שברצונך למחוק את הקלף?');
 
   if(!ok) return;
 
-  let cards=getSavedCards();
+  const { error } = await supabaseClient
+    .from('cards')
+    .delete()
+    .eq('id',id);
 
-  cards=cards.filter(card=>card.id!==id);
+  if(error){
+    console.error('שגיאה במחיקת הקלף:', error);
+    alert('מחיקת הקלף נכשלה: '+error.message);
+    return;
+  }
 
-  localStorage.setItem(
-    LS+'cards',
-    JSON.stringify(cards)
-  );
-
-  renderSavedCards();
+  await renderSavedCards();
 }
 async function send(){
   const user = await supabaseClient.auth.getUser();
