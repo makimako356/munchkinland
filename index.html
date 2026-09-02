@@ -649,6 +649,28 @@ async function loadProfile(){
     return;
   }
 
+  async function subscribeToMyProfile(){
+
+  const { data: { user } } = await supabaseClient.auth.getUser();
+
+  if(!user) return;
+
+  supabaseClient
+    .channel('my-profile-approval')
+    .on(
+      'postgres_changes',
+      {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'profiles',
+        filter: `user_id=eq.${user.id}`
+      },
+      payload => {
+        loadProfile();
+      }
+    )
+    .subscribe();
+}
   const {data:profile,error:profileError} = await supabaseClient
     .from('profiles')
     .select('rank,job,race,weapon,approved,role')
