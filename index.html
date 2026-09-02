@@ -302,7 +302,113 @@ async function renderCal(){
 }
 function changeMonth(n){currentMonth=Math.max(1,Math.min(20,currentMonth+n));renderCal()}
 function updateHome(){today.textContent='היום: '+dayName(currentDay)+' · יום '+currentDay+' בחודש '+currentMonth;let r=JSON.parse(localStorage.getItem(LS+'reminder')||'null');dailyNotice.innerHTML=r&&Number(r.day)===((currentDay-1)%5)+1?'<div class="notice">🔔 '+esc(r.text)+'</div>':''}
-function updateCard(){pn.textContent=cn.value;pt.textContent=ct.value;px.textContent=cx.value;pa.textContent=ca.value}
+function updateCard(){
+  pn.textContent=cn.value;
+  pt.textContent=ct.value;
+  px.textContent=cx.value;
+  pa.textContent=ca.value;
+}
+  function showCardCreator(){
+  document.getElementById('cardCreator').classList.remove('hidden');
+
+  cn.value='קלף מנצ'קין חדש';
+  ct.value='מפלצת';
+  cx.value='כאן כותבים את הטקסט של הקלף.';
+  ca.value='✡️';
+
+  updateCard();
+}
+
+function hideCardCreator(){
+  document.getElementById('cardCreator').classList.add('hidden');
+}
+  function getSavedCards(){
+  return JSON.parse(
+    localStorage.getItem(LS+'cards') || '[]'
+  );
+}
+
+function saveCard(){
+
+  const name=cn.value.trim();
+  const type=ct.value;
+  const text=cx.value.trim();
+  const art=ca.value.trim();
+
+  if(!name || !text){
+    alert('יש למלא שם וטקסט של הקלף.');
+    return;
+  }
+
+  const cards=getSavedCards();
+
+  cards.push({
+    id:Date.now(),
+    name:name,
+    type:type,
+    text:text,
+    art:art
+  });
+
+  localStorage.setItem(
+    LS+'cards',
+    JSON.stringify(cards)
+  );
+
+  alert('הקלף נשמר בהצלחה! 🃏');
+
+  hideCardCreator();
+  renderSavedCards();
+}
+  function renderSavedCards(){
+
+  const cards=getSavedCards();
+
+  if(cards.length===0){
+    savedCards.innerHTML=
+      '<p class="small">עדיין לא נוצרו קלפים. לחץ על "➕ צור קלף חדש" כדי ליצור את הקלף הראשון.</p>';
+    return;
+  }
+
+  savedCards.innerHTML=cards.map(card=>`
+    <div class="savedCard">
+
+      <h3>${esc(card.name)}</h3>
+
+      <div class="art">
+        ${esc(card.art || '🎴')}
+      </div>
+
+      <b>${esc(card.type)}</b>
+
+      <p>${esc(card.text)}</p>
+
+      <div class="cardActions">
+        <button class="danger" onclick="deleteSavedCard(${card.id})">
+          🗑️ מחק
+        </button>
+      </div>
+
+    </div>
+  `).join('');
+}
+  function deleteSavedCard(id){
+
+  const ok=confirm('האם אתה בטוח שברצונך למחוק את הקלף?');
+
+  if(!ok) return;
+
+  let cards=getSavedCards();
+
+  cards=cards.filter(card=>card.id!==id);
+
+  localStorage.setItem(
+    LS+'cards',
+    JSON.stringify(cards)
+  );
+
+  renderSavedCards();
+}
 async function send(){
   const user = await supabaseClient.auth.getUser();
 
@@ -865,5 +971,6 @@ renderNews();
 renderChat();
 updateHome();
 loadProfile();
+renderSavedCards();
 </script>
 </body></html>
