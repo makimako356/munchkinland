@@ -21,6 +21,11 @@ input,textarea,select{width:100%;padding:10px;margin:5px 0 12px;border:1px solid
 .small{font-size:13px;color:#715d43}.hidden{display:none}.event{padding:8px;background:#f7edd8;border-radius:7px;margin:5px 0}
 #messages{max-height:280px;overflow:auto;background:#faf5ea;padding:10px;border-radius:8px}.msg{background:#fff;border-right:4px solid #d49a2f;padding:8px;margin:7px 0;border-radius:7px}
 .cardpreview{width:260px;min-height:350px;margin:20px auto;background:#e7d2a2;border:8px solid #6c3b1c;border-radius:12px;padding:12px;text-align:center}
+.cardsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin-top:18px}
+.savedCard{background:#e7d2a2;border:6px solid #6c3b1c;border-radius:12px;padding:12px;text-align:center;min-height:350px}
+.savedCard .art{height:110px}
+.savedCard h3{margin:5px 0}
+.cardActions{display:flex;gap:8px;justify-content:center;margin-top:10px}
 .art{height:110px;background:#d5bd88;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:48px;margin:12px 0}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row>*{flex:1;min-width:130px}
 footer{text-align:center;padding:25px;color:#715d43}
@@ -46,13 +51,60 @@ footer{text-align:center;padding:25px;color:#715d43}
 <p class="small">20 חודשים בשנה · 20 ימים בחודש · 4 שבועות × 5 ימים.</p><div id="calendar"></div>
 </div></section>
 
-<section id="jewish" class="page"><h2>🎴 מנצ'קין יהודים</h2><div class="box"><h3>מעצב קלף</h3>
-<label>שם</label><input id="cn" value="קלף מנצ'קין חדש"><label>סוג</label><select id="ct"><option>מפלצת</option><option>אוצר</option><option>קללה</option><option>מקצוע</option><option>גזע</option><option>מיוחד</option></select>
-<label>טקסט</label><textarea id="cx">כאן כותבים את הטקסט של הקלף.</textarea><label>איור / סמל</label><input id="ca" value="✡️"><button class="primary" onclick="updateCard()">עדכן קלף</button>
-<div class="cardpreview"><h3 id="pn">קלף מנצ'קין חדש</h3><div class="art" id="pa">✡️</div><b id="pt">מפלצת</b><p id="px">כאן כותבים את הטקסט של הקלף.</p></div>
-</div></section>
+<section id="jewish" class="page">
 
-<section id="chat" class="page"><h2>💬 צ'אט קבוצתי</h2><div class="box"><div id="messages"></div><input id="chatUser" placeholder="שם משתמש"><input id="chatText" placeholder="הודעה" onkeydown="if(event.key==='Enter')send()"><button class="primary" onclick="send()">שלח</button><p class="small">בגרסה המקומית ההודעות נשמרות בדפדפן. לצ'אט משותף נצטרך שרת.</p></div></section>
+<h2>🎴 מנצ'קין יהודים</h2>
+
+<div class="box">
+  <div class="monthbar">
+    <h3>📚 הקלפים שנוצרו</h3>
+    <button class="primary" onclick="showCardCreator()">➕ צור קלף חדש</button>
+  </div>
+
+  <div id="savedCards" class="cardsGrid">
+    <p class="small">טוען קלפים...</p>
+  </div>
+</div>
+
+<div class="box hidden" id="cardCreator">
+
+  <h3>🃏 יצירת קלף חדש</h3>
+
+  <label>שם</label>
+  <input id="cn" value="קלף מנצ'קין חדש">
+
+  <label>סוג</label>
+  <select id="ct">
+    <option>מפלצת</option>
+    <option>אוצר</option>
+    <option>קללה</option>
+    <option>מקצוע</option>
+    <option>גזע</option>
+    <option>מיוחד</option>
+  </select>
+
+  <label>טקסט</label>
+  <textarea id="cx">כאן כותבים את הטקסט של הקלף.</textarea>
+
+  <label>איור / סמל</label>
+  <input id="ca" value="✡️">
+
+  <div class="row">
+    <button class="primary" onclick="updateCard()">👀 עדכן תצוגה</button>
+    <button class="primary" onclick="saveCard()">💾 שמור קלף</button>
+    <button class="secondary" onclick="hideCardCreator()">❌ ביטול</button>
+  </div>
+
+  <div class="cardpreview">
+    <h3 id="pn">קלף מנצ'קין חדש</h3>
+    <div class="art" id="pa">✡️</div>
+    <b id="pt">מפלצת</b>
+    <p id="px">כאן כותבים את הטקסט של הקלף.</p>
+  </div>
+
+</div>
+
+</section><section id="chat" class="page"><h2>💬 צ'אט קבוצתי</h2><div class="box"><div id="messages"></div><input id="chatUser" placeholder="שם משתמש"><input id="chatText" placeholder="הודעה" onkeydown="if(event.key==='Enter')send()"><button class="primary" onclick="send()">שלח</button><p class="small">בגרסה המקומית ההודעות נשמרות בדפדפן. לצ'אט משותף נצטרך שרת.</p></div></section>
 <section id="profile" class="page"><h2>👤 אזור אישי</h2><div class="box">
 
 <div id="loginBox">
