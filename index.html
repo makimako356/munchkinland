@@ -320,11 +320,18 @@ function showCardCreator(){
 }
 function hideCardCreator(){
   document.getElementById('cardCreator').classList.add('hidden');
-}
-  function getSavedCards(){
-  return JSON.parse(
-    localStorage.getItem(LS+'cards') || '[]'
-  );
+async function getSavedCards(){
+  const { data, error } = await supabaseClient
+    .from('cards')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if(error){
+    console.error('שגיאה בטעינת הקלפים:', error);
+    return [];
+  }
+
+  return data || [];
 }
 async function saveCard(){
 
@@ -358,15 +365,38 @@ if(error){
   hideCardCreator();
   renderSavedCards();
 }
-  function renderSavedCards(){
+async function renderSavedCards(){
 
-  const cards=getSavedCards();
+  const cards=await getSavedCards();
 
   if(cards.length===0){
     savedCards.innerHTML=
       '<p class="small">עדיין לא נוצרו קלפים. לחץ על "➕ צור קלף חדש" כדי ליצור את הקלף הראשון.</p>';
     return;
   }
+
+  savedCards.innerHTML=cards.map(card=>`
+    <div class="savedCard">
+
+      <h3>${esc(card.name)}</h3>
+
+      <div class="art">
+        ${esc(card.art || '🎴')}
+      </div>
+
+      <b>${esc(card.type)}</b>
+
+      <p>${esc(card.text)}</p>
+
+      <div class="cardActions">
+        <button class="danger" onclick="deleteSavedCard(${card.id})">
+          🗑️ מחק
+        </button>
+      </div>
+
+    </div>
+  `).join('');
+}
 
   savedCards.innerHTML=cards.map(card=>`
     <div class="savedCard">
