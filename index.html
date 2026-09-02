@@ -137,7 +137,12 @@ function updateMunchkinDate(){
   const now=new Date();
 
   // מתעלמים מהשעה ומשווים ימים בלבד
-  const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  const today=new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  );
+
   const start=new Date(
     MK_START_DATE.getFullYear(),
     MK_START_DATE.getMonth(),
@@ -145,26 +150,28 @@ function updateMunchkinDate(){
   );
 
   const diffMs=today-start;
-  const daysPassed=Math.floor(diffMs/(1000*60*60*24));
-if(daysPassed<0){
-  currentYear=MK_START_YEAR;
-  currentMonth=1;
-  currentDay=1;
-  todayMonth=1;
-  todayDay=1;
-  return;
-}
+  const daysPassed=Math.floor(
+    diffMs/(1000*60*60*24)
+  );
+
+  if(daysPassed<0){
+    currentYear=MK_START_YEAR;
+    currentMonth=1;
+    currentDay=1;
+    todayMonth=1;
+    todayDay=1;
+    return;
   }
 
   currentYear=MK_START_YEAR+Math.floor(daysPassed/400);
 
   const dayOfYear=daysPassed%400;
 
-currentMonth=Math.floor(dayOfYear/20)+1;
-currentDay=(dayOfYear%20)+1;
+  currentMonth=Math.floor(dayOfYear/20)+1;
+  currentDay=(dayOfYear%20)+1;
 
-todayMonth=currentMonth;
-todayDay=currentDay;
+  todayMonth=currentMonth;
+  todayDay=currentDay;
 }
 const specialDefaults={'5-9':{title:'🦉 אתנה-חג',desc:''},'5-10':{title:'⚔️ ארס-חג',desc:''}};
 function page(id){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');if(id==='cal')renderCal();if(id==='news')renderNews();if(id==='profile')loadProfile();if(id==='admin'&&localStorage.getItem(LS+'admin')==='1')showAdmin();}
