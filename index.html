@@ -515,6 +515,20 @@ async function renderChat(){
     }
   )
   .subscribe();
+  supabaseClient
+  .channel('profiles-realtime')
+  .on(
+    'postgres_changes',
+    {
+      event: '*',
+      schema: 'public',
+      table: 'profiles'
+    },
+    payload => {
+      loadRegistrationRequests();
+    }
+  )
+  .subscribe();
 async function registerUser(){
   const email = registerEmail.value.trim();
   const password = registerPass.value;
