@@ -421,6 +421,20 @@ async function deleteSavedCard(id){
 
   await renderSavedCards();
 }
+  supabaseClient
+  .channel('cards-realtime')
+  .on(
+    'postgres_changes',
+    {
+      event: '*',
+      schema: 'public',
+      table: 'cards'
+    },
+    payload => {
+      renderSavedCards();
+    }
+  )
+  .subscribe();
 async function send(){
   const user = await supabaseClient.auth.getUser();
 
