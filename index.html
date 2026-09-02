@@ -686,6 +686,22 @@ async function loadProfile(){
     }
   )
   .subscribe();
+  supabaseClient
+  .channel('events-realtime')
+  .on(
+    'postgres_changes',
+    {
+      event: '*',
+      schema: 'public',
+      table: 'events'
+    },
+    payload => {
+      getEvents();
+      renderCal();
+      renderAdminEvents();
+    }
+  )
+  .subscribe();
   const {data:profile,error:profileError} = await supabaseClient
     .from('profiles')
     .select('rank,job,race,weapon,approved,role')
