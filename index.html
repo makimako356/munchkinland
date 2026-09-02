@@ -671,6 +671,21 @@ async function loadProfile(){
     )
     .subscribe();
 }
+    supabaseClient
+  .channel('news-realtime')
+  .on(
+    'postgres_changes',
+    {
+      event: '*',
+      schema: 'public',
+      table: 'news'
+    },
+    payload => {
+      renderNews();
+      renderAdminNews();
+    }
+  )
+  .subscribe();
   const {data:profile,error:profileError} = await supabaseClient
     .from('profiles')
     .select('rank,job,race,weapon,approved,role')
