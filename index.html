@@ -120,7 +120,44 @@ const SUPABASE_URL = 'https://jsbhunmytehncwrllqdu.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_zd8lJhNhOw-La0bXO-xnzA_zlYdQAvg';
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
  
-const LS='mkl3_';let currentMonth=5,currentDay=11;
+const LS='mkl3_';
+
+// 11 במאי 2026 = חודש 1, יום 1, שנה 1849
+const MK_START_DATE=new Date(2026,4,11);
+const MK_START_YEAR=1849;
+
+let currentMonth=1;
+let currentDay=1;
+let currentYear=1849;
+
+function updateMunchkinDate(){
+  const now=new Date();
+
+  // מתעלמים מהשעה ומשווים ימים בלבד
+  const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  const start=new Date(
+    MK_START_DATE.getFullYear(),
+    MK_START_DATE.getMonth(),
+    MK_START_DATE.getDate()
+  );
+
+  const diffMs=today-start;
+  const daysPassed=Math.floor(diffMs/(1000*60*60*24));
+
+  if(daysPassed<0){
+    currentYear=MK_START_YEAR;
+    currentMonth=1;
+    currentDay=1;
+    return;
+  }
+
+  currentYear=MK_START_YEAR+Math.floor(daysPassed/400);
+
+  const dayOfYear=daysPassed%400;
+
+  currentMonth=Math.floor(dayOfYear/20)+1;
+  currentDay=(dayOfYear%20)+1;
+}
 const specialDefaults={'5-9':{title:'🦉 אתנה-חג',desc:''},'5-10':{title:'⚔️ ארס-חג',desc:''}};
 function page(id){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');if(id==='cal')renderCal();if(id==='news')renderNews();if(id==='profile')loadProfile();if(id==='admin'&&localStorage.getItem(LS+'admin')==='1')showAdmin();}
 function dayName(d){return ['יום ראשון','יום שני','יום שלישי','יום רביעי','יום חמישי'][((d-1)%5)];}
@@ -730,6 +767,11 @@ async function deleteEvent(id){
 function addReminder(){let t=rt.value.trim();if(!t)return;localStorage.setItem(LS+'reminder',JSON.stringify({text:t,day:rd.value}));updateHome();alert('ההודעה נשמרה.')}
 function displayDate(){return 'חודש '+currentMonth+', יום '+currentDay}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-renderCal();renderNews();renderChat();updateHome();loadProfile();
+updateMunchkinDate();
+renderCal();
+renderNews();
+renderChat();
+updateHome();
+loadProfile();
 </script>
 </body></html>
