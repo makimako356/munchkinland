@@ -487,6 +487,20 @@ async function renderChat(){
       </div>`
     ).join('');
 }
+  supabaseClient
+  .channel('messages-realtime')
+  .on(
+    'postgres_changes',
+    {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'messages'
+    },
+    payload => {
+      renderChat();
+    }
+  )
+  .subscribe();
 async function registerUser(){
   const email = registerEmail.value.trim();
   const password = registerPass.value;
