@@ -473,7 +473,54 @@ async function loadRegistrationRequests(){
   alert('הבקשה נדחתה.');
   loadRegistrationRequests();
 }
-function addNews(){let t=nt.value.trim(),x=nx.value.trim();if(!t||!x)return;let a=JSON.parse(localStorage.getItem(LS+'news')||'[]');a.unshift({t,x,date:displayDate()});localStorage.setItem(LS+'news',JSON.stringify(a));nt.value='';nx.value='';renderNews();renderAdminNews()}
+async function addNews(){
+  let t=nt.value.trim();
+  let x=nx.value.trim();
+
+  if(!t||!x)return;
+
+  const user=await supabaseClient.auth.getUser();
+
+  if(!user.data.user){
+    alert('צריך להתחבר כדי לפרסם חדשות.');
+    return;
+  }
+
+  const {data:profile,error:profileError}=await supabaseClient
+    .from('profiles')
+    .select('username,role')
+    .eq('user_id',user.data.user.id)
+    .maybeSingle();
+
+  if(profileError){
+    alert('לא ניתן לבדוק את המשתמש: '+profileError.message);
+    return;
+  }
+
+  if(!profile||profile.role!=='admin'){
+    alert('רק מנהל יכול להוסיף חדשות.');
+    return;
+  }
+
+  const {error}=await supabaseClient
+    .from('news')
+    .insert({
+      title:t,
+      content:x,
+      author:profile.username||user.data.user.email
+    });
+
+  if(error){
+    alert('פרסום החדשה נכשל: '+error.message);
+    return;
+  }
+
+  nt.value='';
+  nx.value='';
+
+  await renderNews();
+  await renderAdminNews();
+}
 function renderNews(){let base=[{t:'האתר נפתח!',x:'גרסה 3.0 של אתר מנצ׳קינלנד מוכנה.',date:'31 באוגוסט 2026'},{t:'מנצ׳קין יהודים בפיתוח',x:'הרחבת מנצ׳קין יהודים ומעצב הקלפים נמצאים בפיתוח.',date:'31 באוגוסט 2026'}],a=JSON.parse(localStorage.getItem(LS+'news')||'[]');newsList.innerHTML=base.concat(a).map(n=>`<div class="box"><h3>${esc(n.t)}</h3><p>${esc(n.x)}</p><span class="small">${esc(n.date)}</span></div>`).join('')}
 function renderAdminNews(){let a=JSON.parse(localStorage.getItem(LS+'news')||'[]');adminNews.innerHTML=a.length?a.map((n,i)=>`<div class="event"><b>${esc(n.t)}</b> <button class="danger" onclick="deleteNews(${i})">מחק</button></div>`).join(''):'<p class="small">אין חדשות שפורסמו ידנית.</p>'}
 function deleteNews(i){let a=JSON.parse(localStorage.getItem(LS+'news')||'[]');a.splice(i,1);localStorage.setItem(LS+'news',JSON.stringify(a));renderNews();renderAdminNews()}
