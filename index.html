@@ -326,8 +326,7 @@ function hideCardCreator(){
     localStorage.getItem(LS+'cards') || '[]'
   );
 }
-
-function saveCard(){
+async function saveCard(){
 
   const name=cn.value.trim();
   const type=ct.value;
@@ -339,22 +338,22 @@ function saveCard(){
     return;
   }
 
-  const cards=getSavedCards();
+  const { error } = await supabaseClient
+    .from('cards')
+    .insert({
+      name:name,
+      type:type,
+      text:text,
+      art:art
+    });
 
-  cards.push({
-    id:Date.now(),
-    name:name,
-    type:type,
-    text:text,
-    art:art
-  });
+  if(error){
+    console.error(error);
+    alert('אירעה שגיאה בשמירת הקלף.');
+    return;
+  }
 
-  localStorage.setItem(
-    LS+'cards',
-    JSON.stringify(cards)
-  );
-
-  alert('הקלף נשמר בהצלחה! 🃏');
+  alert('הקלף נשמר בהצלחה ב־Supabase! 🃏');
 
   hideCardCreator();
   renderSavedCards();
