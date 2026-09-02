@@ -182,10 +182,14 @@ async function renderCal(){
   let s='<div class="calendar">';
 
   for(let d=1;d<=20;d++){
-    let e=ev.find(x=>Number(x.month)===currentMonth && Number(x.day)===d);
+    let e=ev.find(
+      x=>Number(x.month)===currentMonth &&
+         Number(x.day)===d
+    );
+
     let k=currentMonth+'-'+d;
     let special=specialDefaults[k];
-    
+
     if(!e && special){
       e={
         title:special.title,
@@ -193,16 +197,37 @@ async function renderCal(){
       };
     }
 
-    let cls='day'+(e?' special':'');
-    
+    let isToday=
+      currentMonth===todayMonth &&
+      d===todayDay;
+
+    let cls=
+      'day'+
+      (e?' special':'')+
+      (isToday?' today':'');
+
     s+=`<div class="${cls}">
       <strong>${dayName(d)}</strong>
       יום ${d}
+
+      ${isToday?
+        '<div class="event"><b>🟢 היום</b></div>'
+        :''
+      }
+
       ${e?
-        '<div class="event"><b>'+esc(e.title)+'</b>'+
-        (e.description?'<br><span class="small">'+esc(e.description)+'</span>':'')+
+        '<div class="event"><b>'+
+        esc(e.title)+
+        '</b>'+
+        (e.description?
+          '<br><span class="small">'+
+          esc(e.description)+
+          '</span>'
+          :''
+        )+
         '</div>'
-      :''}
+        :''
+      }
     </div>`;
   }
 
