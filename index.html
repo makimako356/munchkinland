@@ -124,12 +124,52 @@ const LS='mkl3_';let currentMonth=5,currentDay=11;
 const specialDefaults={'5-9':{title:'🦉 אתנה-חג',desc:''},'5-10':{title:'⚔️ ארס-חג',desc:''}};
 function page(id){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');if(id==='cal')renderCal();if(id==='news')renderNews();if(id==='profile')loadProfile();if(id==='admin'&&localStorage.getItem(LS+'admin')==='1')showAdmin();}
 function dayName(d){return ['יום ראשון','יום שני','יום שלישי','יום רביעי','יום חמישי'][((d-1)%5)];}
-function getEvents(){return JSON.parse(localStorage.getItem(LS+'events')||'{}')}
-function renderCal(){
- monthTitle.textContent='חודש '+currentMonth;
- let ev=getEvents(),s='<div class="calendar">';
- for(let d=1;d<=20;d++){let k=currentMonth+'-'+d,e=ev[k]||specialDefaults[k], cls='day'+(e?' special':'');s+=`<div class="${cls}"><strong>${dayName(d)}</strong>יום ${d}${e?'<div class="event"><b>'+esc(e.title)+'</b>'+(e.desc?'<br><span class="small">'+esc(e.desc)+'</span>':'')+'</div>':''}</div>`}
- calendar.innerHTML=s+'</div>';
+async function getEvents(){
+  const {data,error}=await supabaseClient
+    .from('events')
+    .select('id,month,day,title,description')
+    .order('month',{ascending:true})
+    .order('day',{ascending:true});
+
+  if(error){
+    console.error(error);
+    return [];
+  }
+
+  return data || [];
+}
+async function renderCal(){
+  monthTitle.textContent='חודש '+currentMonth;
+
+  let ev=await getEvents();
+  let s='<div class="calendar">';
+
+  for(let d=1;d<=20;d++){
+    let e=ev.find(x=>Number(x.month)===currentMonth && Number(x.day)===d);
+    let k=currentMonth+'-'+d;
+    let special=specialDefaults[k];
+    
+    if(!e && special){
+      e={
+        title:special.title,
+        description:special.desc
+      };
+    }
+
+    let cls='day'+(e?' special':'');
+    
+    s+=`<div class="${cls}">
+      <strong>${dayName(d)}</strong>
+      יום ${d}
+      ${e?
+        '<div class="event"><b>'+esc(e.title)+'</b>'+
+        (e.description?'<br><span class="small">'+esc(e.description)+'</span>':'')+
+        '</div>'
+      :''}
+    </div>`;
+  }
+
+  calendar.innerHTML=s+'</div>';
 }
 function changeMonth(n){currentMonth=Math.max(1,Math.min(20,currentMonth+n));renderCal()}
 function updateHome(){today.textContent='היום: '+dayName(currentDay)+' · יום '+currentDay+' בחודש '+currentMonth;let r=JSON.parse(localStorage.getItem(LS+'reminder')||'null');dailyNotice.innerHTML=r&&Number(r.day)===((currentDay-1)%5)+1?'<div class="notice">🔔 '+esc(r.text)+'</div>':''}
@@ -597,9 +637,96 @@ async function deleteNews(id){
   await renderNews();
   await renderAdminNews();
 }
-function saveEvent(){let m=Number(edMonth.value),d=Number(edDay.value),t=edTitle.value.trim(),x=edDesc.value.trim();if(m<1||m>20||d<1||d>20||!t){alert('יש למלא חודש, יום ושם');return}let a=getEvents();a[m+'-'+d]={title:t,desc:x};localStorage.setItem(LS+'events',JSON.stringify(a));renderCal();renderAdminEvents();alert('האירוע נוסף ללוח.')}
-function renderAdminEvents(){let a=getEvents(),keys=Object.keys(a);eventsAdmin.innerHTML=keys.length?keys.sort((x,y)=>x.localeCompare(y,undefined,{numeric:true})).map(k=>`<div class="event"><b>חודש ${k.split('-')[0]}, יום ${k.split('-')[1]}:</b> ${esc(a[k].title)} <button class="danger" onclick="deleteEvent('${k}')">מחק</button></div>`).join(''):'<p class="small">אין אירועים שהוספת.</p>'}
-function deleteEvent(k){let a=getEvents();delete a[k];localStorage.setItem(LS+'events',JSON.stringify(a));renderCal();renderAdminEvents()}
+async function saveEvent(){
+  let m=Number(edMonth.value);
+  let d=Number(edDay.value);
+  let t=edTitle.value.trim();
+  let x=edDesc.value.trim();
+
+  if(m<1||m>20||d<1||d>20||!t){
+    alert('יש למלא חודש, יום ושם');
+    return;
+  }
+
+  const {data:existing,error:checkError}=await supabaseClient
+    .from('events')
+    .select('id')
+    .eq('month',m)
+    .eq('day',d)
+    .maybeSingle();
+
+  if(checkError){
+    alert('בדיקת האירוע נכשלה: '+checkError.message);
+    return;
+  }
+
+  let error;
+
+  if(existing){
+    const result=await supabaseClient
+      .from('events')
+      .update({
+        title:t,
+        description:x
+      })
+      .eq('id',existing.id);
+
+    error=result.error;
+  }else{
+    const result=await supabaseClient
+      .from('events')
+      .insert({
+        month:m,
+        day:d,
+        title:t,
+        description:x
+      });
+
+    error=result.error;
+  }
+
+  if(error){
+    alert('שמירת האירוע נכשלה: '+error.message);
+    return;
+  }
+
+  edMonth.value='';
+  edDay.value='';
+  edTitle.value='';
+  edDesc.value='';
+
+  await renderCal();
+  await renderAdminEvents();
+
+  alert('האירוע נוסף ללוח.');
+}
+async function renderAdminEvents(){
+  let a=await getEvents();
+
+  eventsAdmin.innerHTML=a.length
+    ? a.map(e=>`
+      <div class="event">
+        <b>חודש ${e.month}, יום ${e.day}:</b>
+        ${esc(e.title)}
+        <button class="danger" onclick="deleteEvent(${e.id})">מחק</button>
+      </div>
+    `).join('')
+    : '<p class="small">אין אירועים שהוספת.</p>';
+}
+async function deleteEvent(id){
+  const {error}=await supabaseClient
+    .from('events')
+    .delete()
+    .eq('id',id);
+
+  if(error){
+    alert('מחיקת האירוע נכשלה: '+error.message);
+    return;
+  }
+
+  await renderCal();
+  await renderAdminEvents();
+}
 function addReminder(){let t=rt.value.trim();if(!t)return;localStorage.setItem(LS+'reminder',JSON.stringify({text:t,day:rd.value}));updateHome();alert('ההודעה נשמרה.')}
 function displayDate(){return 'חודש '+currentMonth+', יום '+currentDay}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
