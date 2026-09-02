@@ -347,11 +347,11 @@ async function saveCard(){
       art:art
     });
 
-  if(error){
-    console.error(error);
-    alert('אירעה שגיאה בשמירת הקלף.');
-    return;
-  }
+if(error){
+  console.error('שגיאה בשמירת קלף:', error);
+  alert('שגיאה: '+error.message);
+  return;
+}
 
   alert('הקלף נשמר בהצלחה ב־Supabase! 🃏');
 
