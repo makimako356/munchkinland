@@ -308,17 +308,16 @@ function updateCard(){
   px.textContent=cx.value;
   pa.textContent=ca.value;
 }
-  function showCardCreator(){
+function showCardCreator(){
   document.getElementById('cardCreator').classList.remove('hidden');
 
-  cn.value='קלף מנצ'קין חדש';
+  cn.value="קלף מנצ'קין חדש";
   ct.value='מפלצת';
   cx.value='כאן כותבים את הטקסט של הקלף.';
   ca.value='✡️';
 
   updateCard();
 }
-
 function hideCardCreator(){
   document.getElementById('cardCreator').classList.add('hidden');
 }
