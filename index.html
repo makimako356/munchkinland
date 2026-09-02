@@ -521,9 +521,82 @@ async function addNews(){
   await renderNews();
   await renderAdminNews();
 }
-function renderNews(){let base=[{t:'האתר נפתח!',x:'גרסה 3.0 של אתר מנצ׳קינלנד מוכנה.',date:'31 באוגוסט 2026'},{t:'מנצ׳קין יהודים בפיתוח',x:'הרחבת מנצ׳קין יהודים ומעצב הקלפים נמצאים בפיתוח.',date:'31 באוגוסט 2026'}],a=JSON.parse(localStorage.getItem(LS+'news')||'[]');newsList.innerHTML=base.concat(a).map(n=>`<div class="box"><h3>${esc(n.t)}</h3><p>${esc(n.x)}</p><span class="small">${esc(n.date)}</span></div>`).join('')}
-function renderAdminNews(){let a=JSON.parse(localStorage.getItem(LS+'news')||'[]');adminNews.innerHTML=a.length?a.map((n,i)=>`<div class="event"><b>${esc(n.t)}</b> <button class="danger" onclick="deleteNews(${i})">מחק</button></div>`).join(''):'<p class="small">אין חדשות שפורסמו ידנית.</p>'}
-function deleteNews(i){let a=JSON.parse(localStorage.getItem(LS+'news')||'[]');a.splice(i,1);localStorage.setItem(LS+'news',JSON.stringify(a));renderNews();renderAdminNews()}
+async function renderNews(){
+  const {data,error}=await supabaseClient
+    .from('news')
+    .select('id,title,content,author,created_at')
+    .order('created_at',{ascending:false});
+
+  if(error){
+    console.error(error);
+    newsList.innerHTML='<div class="box"><p>לא ניתן לטעון את החדשות.</p></div>';
+    return;
+  }
+
+  newsList.innerHTML=data.map(n=>`
+    <div class="box">
+      <h3>${esc(n.title)}</h3>
+      <p>${esc(n.content)}</p>
+      <span class="small">
+        ${esc(new Date(n.created_at).toLocaleDateString('he-IL'))}
+        ${n.author?' · '+esc(n.author):''}
+      </span>
+    </div>
+  `).join('');
+}
+async function renderAdminNews(){
+  const {data,error}=await supabaseClient
+    .from('news')
+    .select('id,title,content,created_at')
+    .order('created_at',{ascending:false});
+
+  if(error){
+    console.error(error);
+    adminNews.innerHTML='<p class="small">לא ניתן לטעון את החדשות.</p>';
+    return;
+  }
+
+  adminNews.innerHTML=data.length
+    ? data.map(n=>`
+        <div class="event">
+          <b>${esc(n.title)}</b>
+          <button class="danger" onclick="deleteNews(${n.id})">מחק</button>
+        </div>
+      `).join('')
+    : '<p class="small">אין חדשות.</p>';
+}
+async function deleteNews(id){
+  const user=await supabaseClient.auth.getUser();
+
+  if(!user.data.user){
+    alert('צריך להתחבר.');
+    return;
+  }
+
+  const {data:profile,error:profileError}=await supabaseClient
+    .from('profiles')
+    .select('role')
+    .eq('user_id',user.data.user.id)
+    .maybeSingle();
+
+  if(profileError||!profile||profile.role!=='admin'){
+    alert('רק מנהל יכול למחוק חדשות.');
+    return;
+  }
+
+  const {error}=await supabaseClient
+    .from('news')
+    .delete()
+    .eq('id',id);
+
+  if(error){
+    alert('מחיקת החדשה נכשלה: '+error.message);
+    return;
+  }
+
+  await renderNews();
+  await renderAdminNews();
+}
 function saveEvent(){let m=Number(edMonth.value),d=Number(edDay.value),t=edTitle.value.trim(),x=edDesc.value.trim();if(m<1||m>20||d<1||d>20||!t){alert('יש למלא חודש, יום ושם');return}let a=getEvents();a[m+'-'+d]={title:t,desc:x};localStorage.setItem(LS+'events',JSON.stringify(a));renderCal();renderAdminEvents();alert('האירוע נוסף ללוח.')}
 function renderAdminEvents(){let a=getEvents(),keys=Object.keys(a);eventsAdmin.innerHTML=keys.length?keys.sort((x,y)=>x.localeCompare(y,undefined,{numeric:true})).map(k=>`<div class="event"><b>חודש ${k.split('-')[0]}, יום ${k.split('-')[1]}:</b> ${esc(a[k].title)} <button class="danger" onclick="deleteEvent('${k}')">מחק</button></div>`).join(''):'<p class="small">אין אירועים שהוספת.</p>'}
 function deleteEvent(k){let a=getEvents();delete a[k];localStorage.setItem(LS+'events',JSON.stringify(a));renderCal();renderAdminEvents()}
